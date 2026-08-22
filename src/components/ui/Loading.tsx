@@ -1,0 +1,2 @@
+export function LoadingRows({rows=6}:{rows?:number}){return <div className="table-wrap p-4"><div className="space-y-3">{Array.from({length:rows}).map((_,i)=><div key={i} className="h-12 animate-pulse rounded-xl bg-zinc-100"/>)}</div></div>}
+export function PageLoading(){return <div className="space-y-5"><div className="h-10 w-56 animate-pulse rounded-xl bg-zinc-200"/><div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{Array.from({length:4}).map((_,i)=><div key={i} className="h-28 animate-pulse rounded-2xl bg-zinc-200"/>)}</div><LoadingRows/></div>}

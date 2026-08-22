@@ -1,0 +1,3 @@
+import type {ReactNode} from 'react'
+export type Column<T>={key:string;header:string;render:(row:T)=>ReactNode;className?:string}
+export function DataTable<T>({rows,columns,getKey,onRowClick}:{rows:T[];columns:Column<T>[];getKey:(row:T)=>string|number;onRowClick?:(row:T)=>void}){return <div className="table-wrap overflow-x-auto"><table className="table"><thead><tr>{columns.map(c=><th key={c.key} className={c.className}>{c.header}</th>)}</tr></thead><tbody>{rows.map(r=><tr key={getKey(r)} className={onRowClick?'cursor-pointer':''} onClick={()=>onRowClick?.(r)}>{columns.map(c=><td key={c.key} className={c.className}>{c.render(r)}</td>)}</tr>)}</tbody></table></div>}

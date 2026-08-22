@@ -1,0 +1,3 @@
+import {baseApi,unwrap} from './baseApi';import type {User} from '../types'
+export const authApi=baseApi.injectEndpoints({endpoints:b=>({login:b.mutation<{user:User;auth:{access:string;refresh:string}},{identifier:string;password:string}>({query:body=>({url:'/auth/login/',method:'POST',body}),transformResponse:unwrap}),me:b.query<User,void>({query:()=>'/auth/me/',transformResponse:unwrap,providesTags:['Auth']}),logoutServer:b.mutation<void,string>({query:refresh=>({url:'/auth/logout/',method:'POST',body:{refresh}})})})})
+export const {useLoginMutation,useMeQuery,useLazyMeQuery,useLogoutServerMutation}=authApi

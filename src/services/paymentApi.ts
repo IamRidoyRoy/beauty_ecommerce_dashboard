@@ -1,0 +1,2 @@
+import {baseApi,unwrap} from './baseApi';const tr=(x:any)=>unwrap(x)
+export const paymentApi=baseApi.injectEndpoints({endpoints:b=>({payments:b.query<any,Record<string,any>|void>({query:p=>({url:'/admin/payments/',params:p||{}}),transformResponse:tr,providesTags:['Payments']}),updatePayment:b.mutation<any,{id:number;body:any}>({query:x=>({url:`/admin/payments/${x.id}/`,method:'PATCH',body:x.body}),transformResponse:tr,invalidatesTags:['Payments','Orders']})})});export const {usePaymentsQuery,useUpdatePaymentMutation}=paymentApi

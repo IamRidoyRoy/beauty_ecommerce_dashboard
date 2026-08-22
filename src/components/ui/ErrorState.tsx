@@ -1,0 +1,2 @@
+import {AlertTriangle,RefreshCw} from 'lucide-react'
+export function ErrorState({onRetry,message='Unable to load this data.'}:{onRetry?:()=>void;message?:string}){return <div className="panel flex min-h-56 flex-col items-center justify-center p-8 text-center"><AlertTriangle className="mb-3 text-red-500"/><h3 className="font-semibold">Something went wrong</h3><p className="mt-1 text-sm text-zinc-500">{message}</p>{onRetry&&<button className="btn-secondary mt-4" onClick={onRetry}><RefreshCw size={16}/>Retry</button>}</div>}

@@ -1,0 +1,2 @@
+import {baseApi,unwrap} from './baseApi';const tr=(x:any)=>unwrap(x)
+export const reviewApi=baseApi.injectEndpoints({endpoints:b=>({reviews:b.query<any,Record<string,any>|void>({query:p=>({url:'/admin/reviews/',params:p||{}}),transformResponse:tr,providesTags:['Reviews']}),updateReview:b.mutation<any,{id:number;body:any}>({query:x=>({url:`/admin/reviews/${x.id}/`,method:'PATCH',body:x.body}),transformResponse:tr,invalidatesTags:['Reviews']})})});export const {useReviewsQuery,useUpdateReviewMutation}=reviewApi

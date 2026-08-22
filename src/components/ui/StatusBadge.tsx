@@ -1,0 +1,3 @@
+import {titleCase} from '../../utils/format'
+const color=(v:string)=>{const s=v.toLowerCase();if(/active|paid|delivered|received|approved|completed|success|in_stock/.test(s))return'bg-emerald-50 text-emerald-700 ring-emerald-600/20';if(/pending|draft|processing|partial|shipped|ready|ordered/.test(s))return'bg-amber-50 text-amber-700 ring-amber-600/20';if(/cancel|reject|failed|refunded|out_of_stock/.test(s))return'bg-red-50 text-red-700 ring-red-600/20';return'bg-zinc-100 text-zinc-700 ring-zinc-500/20'}
+export function StatusBadge({value}:{value:string|boolean|undefined|null}){const v=typeof value==='boolean'?(value?'active':'inactive'):(value||'unknown');return <span className={`badge ring-1 ring-inset ${color(v)}`}>{titleCase(v)}</span>}
