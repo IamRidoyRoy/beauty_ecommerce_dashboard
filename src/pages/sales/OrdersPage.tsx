@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {useNavigate} from 'react-router'
+import {useNavigate,useSearchParams} from 'react-router'
 import {Eye,FileText,Printer,Search,X} from 'lucide-react'
 import {PageHeader} from '../../components/ui/PageHeader'
 import {DataTable,type Column} from '../../components/ui/DataTable'
@@ -14,7 +14,7 @@ import {rowsOf,countOf} from '../../utils/data'
 import {money,date,titleCase} from '../../utils/format'
 
 export default function OrdersPage(){
-  const nav=useNavigate(); const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState('')
+  const nav=useNavigate(); const [params]=useSearchParams(); const period=params.get('period')||''; const now=new Date(); const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`; const [page,setPage]=useState(1),[search,setSearch]=useState(params.get('search')||''),[status,setStatus]=useState(params.get('order_status')||''),[payment,setPayment]=useState(params.get('payment_status')||''),[fulfillment,setFulfillment]=useState(params.get('fulfillment_status')||''),[shipping,setShipping]=useState(params.get('shipping_method')||''),[dateFrom,setDateFrom]=useState(params.get('date_from')||(period==='today'?today:'')),[dateTo,setDateTo]=useState(params.get('date_to')||(period==='today'?today:''))
   const debounced=useDebouncedValue(search); const q=useOrdersQuery({page,search:debounced||undefined,order_status:status||undefined,payment_status:payment||undefined,fulfillment_status:fulfillment||undefined,shipping_method:shipping||undefined,date_from:dateFrom||undefined,date_to:dateTo||undefined,ordering:'-created_at'}); const sm=useShippingMethodsQuery()
   const clear=()=>{setSearch('');setStatus('');setPayment('');setFulfillment('');setShipping('');setDateFrom('');setDateTo('');setPage(1)}
   const cols:Column<any>[]=[

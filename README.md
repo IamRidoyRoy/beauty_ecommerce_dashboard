@@ -114,7 +114,3 @@ The product editor now loads the existing base-product gallery in the Images ste
 - Name and code are required in the dashboard before submitting.
 - API validation errors are shown at the affected field and in a concise toast.
 - Success/info notifications close automatically after 3.5 seconds; error notifications after 5 seconds. Identical duplicate notifications are de-duplicated.
-
-## Homepage hero slider
-
-Open **Marketing → Hero Slider** to create, edit, activate/hide, schedule and delete storefront hero slides. Each slide supports desktop/mobile images, text theme/position, overlay, CTA links and display order.
