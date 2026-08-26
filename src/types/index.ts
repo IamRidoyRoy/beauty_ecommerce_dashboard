@@ -25,3 +25,6 @@ export type DashboardData={orders:number;revenue:string|number;aov:string|number
 export type SearchResult={type:string;id:number;title:string;subtitle:string;url:string}
 export type CheckoutSettings={id:number;existing_customer_otp_verification:boolean;created_at?:string;updated_at?:string}
 export type BusinessSettings=CheckoutSettings
+
+export type HeroSlide={id:number;eyebrow?:string;title:string;subtitle?:string;image:string;mobile_image?:string|null;image_alt?:string;primary_cta_label?:string;primary_cta_url?:string;secondary_cta_label?:string;secondary_cta_url?:string;text_position:'left'|'center'|'right';theme:'light'|'dark';overlay_opacity:number;active:boolean;order:number;starts_at?:string|null;ends_at?:string|null;created_at?:string;updated_at?:string}
+export type AnnouncementMessage={id:number;text:string;icon?:string;link_url?:string;active:boolean;order:number;created_at?:string;updated_at?:string}

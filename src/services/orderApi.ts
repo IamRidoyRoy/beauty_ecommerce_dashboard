@@ -18,7 +18,7 @@ export const orderApi=baseApi.injectEndpoints({
     transitionOrder:b.mutation<Order,{order:string;new_status:string}>({
       query:x=>({url:`/admin/orders/${x.order}/transition/`,method:'POST',body:{new_status:x.new_status}}),
       transformResponse:tr,
-      invalidatesTags:['Orders','Dashboard','Inventory'],
+      invalidatesTags:['Orders','Dashboard','Reports','Inventory'],
     }),
     invoice:b.query<any,string>({query:n=>`/admin/orders/${n}/invoice/`,transformResponse:tr}),
     validateAdminCoupon:b.mutation<any,any>({
@@ -28,7 +28,7 @@ export const orderApi=baseApi.injectEndpoints({
     createAdminOrder:b.mutation<any,any>({
       query:body=>({url:'/admin/orders/create-order/',method:'POST',body}),
       transformResponse:tr,
-      invalidatesTags:['Orders','Dashboard','Inventory','Customers','Payments'],
+      invalidatesTags:['Orders','Dashboard','Reports','Inventory','Customers','Payments'],
     }),
   }),
 })

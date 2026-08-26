@@ -41,6 +41,8 @@ const nav:NavItem[]=[
     {label:'Coupons',to:'/marketing/coupons'},
     {label:'Promotions',to:'/marketing/promotions'},
     {label:'Campaigns',to:'/marketing/campaigns'},
+    {label:'Hero Slider',to:'/marketing/hero-slider'},
+    {label:'Announcement Bar',to:'/marketing/announcement-bar'},
   ]},
   {label:'After Sales',icon:RotateCcw,children:[
     {label:'Reviews',to:'/after-sales/reviews',area:'reviews'},
