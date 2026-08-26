@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router'
 import {ExternalLink,Image as ImageIcon,Search,Star} from 'lucide-react'
 import {PageHeader} from '../../components/ui/PageHeader'
 import {DataTable,type Column} from '../../components/ui/DataTable'
@@ -31,7 +31,7 @@ function ProductCell({review,onOpen}:{review:any;onOpen:()=>void}){
 }
 
 export default function ReviewsPage(){
-  const dispatch=useAppDispatch(),navigate=useNavigate(),[page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState('pending'),[selected,setSelected]=useState<any>(null)
+  const dispatch=useAppDispatch(),navigate=useNavigate(),[page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[selected,setSelected]=useState<any>(null)
   const debounced=useDebouncedValue(search,300)
   const q=useReviewsQuery({page,page_size:50,search:debounced||undefined,status:status||undefined})
   const [update,busy]=useUpdateReviewMutation()

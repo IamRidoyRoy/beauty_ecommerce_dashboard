@@ -114,3 +114,8 @@ The product editor now loads the existing base-product gallery in the Images ste
 - Name and code are required in the dashboard before submitting.
 - API validation errors are shown at the affected field and in a concise toast.
 - Success/info notifications close automatically after 3.5 seconds; error notifications after 5 seconds. Identical duplicate notifications are de-duplicated.
+
+
+## Staff order creation
+
+Sales is the second sidebar module after Dashboard. Authorized order-writing roles can create orders from **Dashboard → Create Order**, **Sales → Create Order**, or the Orders page. The flow supports native simple and variable products, customer lookup by name/phone/email, District → Thana delivery selection, payment/shipping method, coupons and order notes. Submission calls `POST /api/v1/admin/orders/create-order/`.

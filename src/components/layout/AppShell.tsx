@@ -1,2 +1,2 @@
 import {Outlet} from 'react-router';import {Sidebar} from './Sidebar';import {Topbar} from './Topbar';import {ToastHost} from '../ui/ToastHost'
-export function AppShell(){return <div className="app-shell min-h-screen bg-[#f7f7f8]"><Sidebar/><div className="lg:pl-72"><Topbar/><main className="main-content mx-auto max-w-[1700px] p-4 sm:p-6 lg:p-7"><Outlet/></main></div><ToastHost/></div>}
+export function AppShell(){return <div className="app-shell min-h-screen bg-[#f7f7f8]"><Sidebar/><div className="content-shell lg:pl-72"><Topbar/><main className="main-content mx-auto max-w-[1700px] p-4 sm:p-6 lg:p-7"><Outlet/></main></div><ToastHost/></div>}

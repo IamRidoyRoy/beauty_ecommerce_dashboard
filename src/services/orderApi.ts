@@ -1,2 +1,43 @@
-import {baseApi,unwrap} from './baseApi';import type {Order} from '../types';const tr=(x:any)=>unwrap(x)
-export const orderApi=baseApi.injectEndpoints({endpoints:b=>({orders:b.query<any,Record<string,any>|void>({query:p=>({url:'/admin/orders/',params:p||{}}),transformResponse:tr,providesTags:['Orders']}),order:b.query<Order,string>({query:n=>`/admin/orders/${n}/`,transformResponse:tr,providesTags:(_,e,n)=>[{type:'Orders',id:n}]}),transitionOrder:b.mutation<Order,{order:string;new_status:string}>({query:x=>({url:`/admin/orders/${x.order}/transition/`,method:'POST',body:{new_status:x.new_status}}),transformResponse:tr,invalidatesTags:['Orders','Dashboard','Inventory']}),invoice:b.query<any,string>({query:n=>`/admin/orders/${n}/invoice/`,transformResponse:tr})})});export const {useOrdersQuery,useOrderQuery,useTransitionOrderMutation,useInvoiceQuery}=orderApi
+import {baseApi,unwrap} from './baseApi'
+import type {Order} from '../types'
+
+const tr=(x:any)=>unwrap(x)
+
+export const orderApi=baseApi.injectEndpoints({
+  endpoints:b=>({
+    orders:b.query<any,Record<string,any>|void>({
+      query:p=>({url:'/admin/orders/',params:p||{}}),
+      transformResponse:tr,
+      providesTags:['Orders'],
+    }),
+    order:b.query<Order,string>({
+      query:n=>`/admin/orders/${n}/`,
+      transformResponse:tr,
+      providesTags:(_,e,n)=>[{type:'Orders',id:n}],
+    }),
+    transitionOrder:b.mutation<Order,{order:string;new_status:string}>({
+      query:x=>({url:`/admin/orders/${x.order}/transition/`,method:'POST',body:{new_status:x.new_status}}),
+      transformResponse:tr,
+      invalidatesTags:['Orders','Dashboard','Inventory'],
+    }),
+    invoice:b.query<any,string>({query:n=>`/admin/orders/${n}/invoice/`,transformResponse:tr}),
+    validateAdminCoupon:b.mutation<any,any>({
+      query:body=>({url:'/admin/orders/validate-coupon/',method:'POST',body}),
+      transformResponse:tr,
+    }),
+    createAdminOrder:b.mutation<any,any>({
+      query:body=>({url:'/admin/orders/create-order/',method:'POST',body}),
+      transformResponse:tr,
+      invalidatesTags:['Orders','Dashboard','Inventory','Customers','Payments'],
+    }),
+  }),
+})
+
+export const {
+  useOrdersQuery,
+  useOrderQuery,
+  useTransitionOrderMutation,
+  useInvoiceQuery,
+  useValidateAdminCouponMutation,
+  useCreateAdminOrderMutation,
+}=orderApi

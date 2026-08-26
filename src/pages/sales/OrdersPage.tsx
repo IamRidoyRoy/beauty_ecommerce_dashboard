@@ -1,6 +1,8 @@
 import {useState} from 'react'
 import {useNavigate} from 'react-router'
-import {Eye,FileText,Printer,Search,X} from 'lucide-react'
+import {useAppSelector} from '../../store/hooks'
+import {can} from '../../utils/permissions'
+import {Eye,FileText,Plus,Printer,Search,X} from 'lucide-react'
 import {PageHeader} from '../../components/ui/PageHeader'
 import {DataTable,type Column} from '../../components/ui/DataTable'
 import {StatusBadge} from '../../components/ui/StatusBadge'
@@ -14,7 +16,7 @@ import {rowsOf,countOf} from '../../utils/data'
 import {money,date,titleCase} from '../../utils/format'
 
 export default function OrdersPage(){
-  const nav=useNavigate(); const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState('')
+  const nav=useNavigate(); const role=useAppSelector(s=>s.auth.user?.role); const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState('')
   const debounced=useDebouncedValue(search); const q=useOrdersQuery({page,search:debounced||undefined,order_status:status||undefined,payment_status:payment||undefined,fulfillment_status:fulfillment||undefined,shipping_method:shipping||undefined,date_from:dateFrom||undefined,date_to:dateTo||undefined,ordering:'-created_at'}); const sm=useShippingMethodsQuery()
   const clear=()=>{setSearch('');setStatus('');setPayment('');setFulfillment('');setShipping('');setDateFrom('');setDateTo('');setPage(1)}
   const cols:Column<any>[]=[
@@ -28,7 +30,7 @@ export default function OrdersPage(){
     {key:'actions',header:'Actions',render:r=><div className="flex items-center gap-1" onClick={e=>e.stopPropagation()}><button title="Order detail" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100" onClick={()=>nav(`/sales/orders/${r.order_number}`)}><Eye size={16}/></button><button title="View invoice" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100" onClick={()=>nav(`/sales/orders/${r.order_number}/invoice`)}><FileText size={16}/></button><button title="Print invoice" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100" onClick={()=>window.open(`/sales/orders/${r.order_number}/invoice?print=1`,'_blank','noopener,noreferrer')}><Printer size={16}/></button></div>},
   ]
   return <>
-    <PageHeader title="Orders" description="Search and process orders with direct invoice and print actions."/>
+    <PageHeader title="Orders" description="Search and process orders with direct invoice and print actions." actions={can(role,'order_write')?<button className="btn-brand" onClick={()=>nav('/sales/orders/new')}><Plus size={16}/>Create Order</button>:undefined}/>
     <div className="panel mb-4 grid gap-2 p-3 md:grid-cols-2 xl:grid-cols-8">
       <label className="relative xl:col-span-2"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16}/><input className="input pl-9" placeholder="Order, customer, phone or SKU" value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}}/></label>
       <select className="input" value={status} onChange={e=>{setStatus(e.target.value);setPage(1)}}><option value="">All order statuses</option>{['pending','confirmed','processing','packed','ready_to_ship','shipped','out_for_delivery','delivered','cancelled','return_requested','partially_returned','returned','refunded'].map(x=><option key={x} value={x}>{titleCase(x)}</option>)}</select>

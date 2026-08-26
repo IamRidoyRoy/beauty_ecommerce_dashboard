@@ -24,6 +24,7 @@ import { useCreateShipmentMutation } from '../../services/shippingApi'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { apiError } from '../../utils/data'
 import { date, money, titleCase } from '../../utils/format'
+import {mediaUrl} from '../../utils/media'
 
 const sequence = [
   'pending',
@@ -79,6 +80,7 @@ export default function OrderDetailPage() {
   const address = order.shipping_address_snapshot || {}
   const current = sequence.indexOf(order.order_status)
   const payment = order.payments?.[0]
+  const couponEntry=(order.promotion_snapshot||[]).find((x:any)=>x?.type==='coupon'||(order.coupon_code_snapshot&&x?.code===order.coupon_code_snapshot)) as any
   const forwardStatuses = current >= 0 ? sequence.slice(current) : [order.order_status]
   const canChangeStatus = orderWrite && current >= 0 && !terminalStatuses.has(order.order_status)
   const canBookShipment =
@@ -196,7 +198,7 @@ export default function OrderDetailPage() {
                       <td>
                         <div className="flex items-center gap-3">
                           {i.image_snapshot ? (
-                            <img src={i.image_snapshot} className="h-11 w-11 rounded-lg object-cover" />
+                            <img src={mediaUrl(i.image_snapshot)} alt="" className="h-11 w-11 rounded-lg border border-zinc-100 object-cover" />
                           ) : (
                             <div className="h-11 w-11 rounded-lg bg-zinc-100" />
                           )}
@@ -292,7 +294,8 @@ export default function OrderDetailPage() {
             <div className="mt-4 space-y-2 text-sm">
               {[
                 ['Subtotal', money(order.subtotal)],
-                ['Discount', `-${money(order.discount)}`],
+                ...(order.coupon_code_snapshot?[[`Coupon (${order.coupon_code_snapshot})`, couponEntry?.free_shipping?'Free shipping':`-${money(couponEntry?.discount??order.discount)}`]]:[]),
+                ['Total Discount', `-${money(order.discount)}`],
                 ['Shipping', money(order.shipping_charge)],
                 ['Tax', money(order.tax)],
               ].map(([a, b]) => (

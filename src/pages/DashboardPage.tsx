@@ -1,4 +1,4 @@
-import {Boxes,Clock,DollarSign,PackageX,RotateCcw,ShoppingBag,ShoppingBasket,TrendingUp,TriangleAlert,Users} from 'lucide-react'
+import {Clock,DollarSign,PackageX,Plus,RotateCcw,ShoppingBag,ShoppingBasket,TrendingUp,TriangleAlert,Users} from 'lucide-react'
 import {Link} from 'react-router'
 import {PageHeader} from '../components/ui/PageHeader'
 import {StatCard} from '../components/ui/StatCard'
@@ -13,15 +13,17 @@ import {StatusBadge} from '../components/ui/StatusBadge'
 import {LoadingRows} from '../components/ui/Loading'
 import {money,date} from '../utils/format'
 import {rowsOf} from '../utils/data'
+import {useAppSelector} from '../store/hooks'
+import {can} from '../utils/permissions'
 
 const MiniEmpty=({text}:{text:string})=><div className="p-8 text-center text-sm text-zinc-400">{text}</div>
 
 export default function DashboardPage(){
-  const d=useDashboardQuery({days:1}); const sales=useReportQuery({type:'sales',days:30}); const products=useReportQuery({type:'product-performance',days:30}); const customerReport=useReportQuery({type:'customers',days:30}); const orders=useOrdersQuery({page_size:6,ordering:'-created_at'}); const stock=useInventoryQuery({ordering:'available_stock',page_size:6,low_stock:true}); const returns=useReturnsQuery({status:'requested',page_size:5}); const customers=useCustomersQuery({ordering:'-created_at',page_size:5})
+  const role=useAppSelector(s=>s.auth.user?.role); const d=useDashboardQuery({days:1}); const sales=useReportQuery({type:'sales',days:30}); const products=useReportQuery({type:'product-performance',days:30}); const customerReport=useReportQuery({type:'customers',days:30}); const orders=useOrdersQuery({page_size:6,ordering:'-created_at'}); const stock=useInventoryQuery({ordering:'available_stock',page_size:6,low_stock:true}); const returns=useReturnsQuery({status:'requested',page_size:5}); const customers=useCustomersQuery({ordering:'-created_at',page_size:5})
   const s:any=d.data||{}; const salesRows=Array.isArray(sales.data)?sales.data:[]; const productRows=Array.isArray(products.data)?products.data:[]; const customerRows=Array.isArray(customerReport.data)?customerReport.data:[]; const orderRows=rowsOf<any>(orders.data).slice(0,6); const stockRows=rowsOf<any>(stock.data).slice(0,6); const returnRows=rowsOf<any>(returns.data).slice(0,5); const recentCustomers=rowsOf<any>(customers.data).slice(0,5)
   const stat=(label:string,value:any,icon:any,tone?:any)=>d.isLoading?<div className="h-28 animate-pulse rounded-2xl bg-zinc-200"/>:<StatCard label={label} value={value} icon={icon} tone={tone}/>
   return <>
-    <PageHeader title="Dashboard" description="Live operational pulse with 30-day commercial trends." actions={<button className="btn-secondary" onClick={()=>{d.refetch();sales.refetch();products.refetch();orders.refetch();stock.refetch()}}>Refresh</button>}/>
+    <PageHeader title="Dashboard" description="Placed orders count in revenue immediately; cancelled and completed returned/refunded orders are excluded." actions={<>{can(role,'order_write')&&<Link className="btn-brand" to="/sales/orders/new"><Plus size={16}/>Create Order</Link>}<button className="btn-secondary" onClick={()=>{d.refetch();sales.refetch();products.refetch();orders.refetch();stock.refetch()}}>Refresh</button></>}/>
     {d.isError&&<div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Dashboard KPI API could not be loaded. Operational panels below remain available. <button className="font-semibold underline" onClick={()=>d.refetch()}>Retry</button></div>}
     <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
       {stat("Today's Revenue",money(s.revenue),DollarSign)}{stat("Today's Orders",s.orders??0,ShoppingBag)}{stat('Units Sold',s.units_sold??0,ShoppingBasket)}{stat('New Customers',s.customers??0,Users)}{stat('Average Order Value',money(s.aov),TrendingUp)}
