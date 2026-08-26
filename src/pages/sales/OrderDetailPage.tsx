@@ -24,7 +24,6 @@ import { useCreateShipmentMutation } from '../../services/shippingApi'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { apiError } from '../../utils/data'
 import { date, money, titleCase } from '../../utils/format'
-import { mediaUrl } from '../../utils/media'
 
 const sequence = [
   'pending',
@@ -197,7 +196,7 @@ export default function OrderDetailPage() {
                       <td>
                         <div className="flex items-center gap-3">
                           {i.image_snapshot ? (
-                            <img src={mediaUrl(i.image_snapshot)} alt={i.product_name_snapshot} className="h-11 w-11 rounded-lg object-cover" />
+                            <img src={i.image_snapshot} className="h-11 w-11 rounded-lg object-cover" />
                           ) : (
                             <div className="h-11 w-11 rounded-lg bg-zinc-100" />
                           )}

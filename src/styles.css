@@ -43,14 +43,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media print {
-  @page { size: A4 portrait; margin: 10mm; }
-  html, body, #root { background: white !important; }
-  .no-print, .app-sidebar, .app-topbar { display: none !important; }
-  .app-shell { display: block !important; min-height: 0 !important; background: white !important; }
-  .app-shell > div { padding-left: 0 !important; }
-  .main-content { margin: 0 !important; max-width: none !important; padding: 0 !important; background: white !important; }
-  .print-page { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
-  .print-page table { break-inside: auto; }
-  .print-page tr { break-inside: avoid; break-after: auto; }
-  .print-page thead { display: table-header-group; }
+  .no-print { display: none !important; }
+  .print-page { box-shadow: none !important; border: 0 !important; margin: 0 !important; max-width: none !important; }
+  .app-shell { display: block !important; }
+  .main-content { padding: 0 !important; background: white !important; }
 }

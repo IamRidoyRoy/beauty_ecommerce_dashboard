@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import {useSearchParams} from 'react-router';
 import {CheckCircle2,PackageCheck,XCircle,Search} from 'lucide-react';
 import {PageHeader} from '../../components/ui/PageHeader';
 import {DataTable,type Column} from '../../components/ui/DataTable';
@@ -18,7 +17,7 @@ import {useAppDispatch} from '../../store/hooks';
 import {toast} from '../../features/ui/uiSlice';
 
 export default function ReturnsPage(){
- const [params]=useSearchParams(); const dispatch=useAppDispatch(),[page,setPage]=useState(1),[search,setSearch]=useState(params.get('search')||''),[status,setStatus]=useState(params.get('status')||''),[selected,setSelected]=useState<any>(null),[warehouse,setWarehouse]=useState(''),[notes,setNotes]=useState('');
+ const dispatch=useAppDispatch(),[page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[selected,setSelected]=useState<any>(null),[warehouse,setWarehouse]=useState(''),[notes,setNotes]=useState('');
  const debounced=useDebouncedValue(search,300);
  const q=useReturnsQuery({page,page_size:50,search:debounced||undefined,status:status||undefined}),wq=useWarehousesQuery({page_size:500});
  const [approve]=useApproveReturnMutation(),[reject]=useRejectReturnMutation(),[receive]=useReceiveReturnMutation(),[transition]=useTransitionReturnMutation();
