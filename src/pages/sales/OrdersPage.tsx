@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {useNavigate,useSearchParams} from 'react-router'
+import {useNavigate} from 'react-router'
 import {useAppSelector} from '../../store/hooks'
 import {can} from '../../utils/permissions'
 import {Eye,FileText,Plus,Printer,Search,X} from 'lucide-react'
@@ -16,7 +16,7 @@ import {rowsOf,countOf} from '../../utils/data'
 import {money,date,titleCase} from '../../utils/format'
 
 export default function OrdersPage(){
-  const nav=useNavigate(); const [searchParams]=useSearchParams(); const role=useAppSelector(s=>s.auth.user?.role); const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}; const isToday=searchParams.get('date')==='today'; const [page,setPage]=useState(1),[search,setSearch]=useState(searchParams.get('search')||''),[status,setStatus]=useState(searchParams.get('status')||''),[payment,setPayment]=useState(searchParams.get('payment')||''),[fulfillment,setFulfillment]=useState(searchParams.get('fulfillment')||''),[shipping,setShipping]=useState(searchParams.get('shipping')||''),[dateFrom,setDateFrom]=useState(searchParams.get('date_from')||(isToday?today():'')),[dateTo,setDateTo]=useState(searchParams.get('date_to')||(isToday?today():''))
+  const nav=useNavigate(); const role=useAppSelector(s=>s.auth.user?.role); const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState('')
   const debounced=useDebouncedValue(search); const q=useOrdersQuery({page,search:debounced||undefined,order_status:status||undefined,payment_status:payment||undefined,fulfillment_status:fulfillment||undefined,shipping_method:shipping||undefined,date_from:dateFrom||undefined,date_to:dateTo||undefined,ordering:'-created_at'}); const sm=useShippingMethodsQuery()
   const clear=()=>{setSearch('');setStatus('');setPayment('');setFulfillment('');setShipping('');setDateFrom('');setDateTo('');setPage(1)}
   const cols:Column<any>[]=[

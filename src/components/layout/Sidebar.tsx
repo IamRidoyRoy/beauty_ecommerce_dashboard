@@ -41,6 +41,7 @@ const nav:NavItem[]=[
     {label:'Coupons',to:'/marketing/coupons'},
     {label:'Promotions',to:'/marketing/promotions'},
     {label:'Campaigns',to:'/marketing/campaigns'},
+    {label:'Pixel & Tracking',to:'/marketing/tracking'},
   ]},
   {label:'After Sales',icon:RotateCcw,children:[
     {label:'Reviews',to:'/after-sales/reviews',area:'reviews'},
