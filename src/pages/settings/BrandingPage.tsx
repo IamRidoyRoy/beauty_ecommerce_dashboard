@@ -8,6 +8,7 @@ import {useAdminSiteBrandingQuery,useUpdateSiteBrandingMutation} from '../../ser
 import {useAppDispatch} from '../../store/hooks'
 import {toast} from '../../features/ui/uiSlice'
 import {apiError} from '../../utils/data'
+import {ImageUploadGuide} from '../../components/ui/ImageUploadGuide'
 
 type FormState={
   website_brand_mode:'text'|'logo';website_name:string;website_tagline:string;
@@ -18,13 +19,14 @@ type FormState={
 const defaults:FormState={website_brand_mode:'text',website_name:'LUMÉA',website_tagline:'Beauty Commerce',dashboard_brand_mode:'text',dashboard_name:'BEAUTYOPS',dashboard_tagline:'Commerce Control',primary_color:'#d43a89',secondary_color:'#33245e'}
 const hex=/^#[0-9a-fA-F]{6}$/
 
-function LogoField({label,current,file,onFile,remove,onRemove}:{label:string;current?:string|null;file:File|null;onFile:(f:File|null)=>void;remove:boolean;onRemove:()=>void}){
+function LogoField({label,current,file,onFile,remove,onRemove,width=600,height=180}:{label:string;current?:string|null;file:File|null;onFile:(f:File|null)=>void;remove:boolean;onRemove:()=>void;width?:number;height?:number}){
   const preview=useMemo(()=>file?URL.createObjectURL(file):(!remove?current||'':''),[file,current,remove])
   useEffect(()=>()=>{if(file&&preview)URL.revokeObjectURL(preview)},[file,preview])
   return <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
-    <div className="mb-3 flex items-center justify-between gap-3"><div><b className="text-sm">{label}</b><p className="mt-0.5 text-xs text-zinc-500">PNG, JPG or WebP · max 3 MB</p></div>{preview&&<button type="button" className="btn-secondary px-3 py-2 text-red-600" onClick={onRemove}><Trash2 size={15}/>Remove</button>}</div>
+    <div className="mb-3 flex items-center justify-between gap-3"><div><b className="text-sm">{label}</b><p className="mt-0.5 text-xs text-zinc-500">WebP recommended for faster loading.</p></div>{preview&&<button type="button" className="btn-secondary px-3 py-2 text-red-600" onClick={onRemove}><Trash2 size={15}/>Remove</button>}</div>
     {preview?<div className="mb-3 flex h-24 items-center justify-center rounded-xl border border-zinc-200 bg-white p-3"><img src={preview} alt={`${label} preview`} className="max-h-full max-w-full object-contain"/></div>:<div className="mb-3 grid h-24 place-items-center rounded-xl border border-dashed border-zinc-300 bg-white text-zinc-400"><ImageIcon/></div>}
-    <label className="btn-secondary w-full cursor-pointer"><Upload size={15}/>{file?'Change selected logo':'Choose logo'}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={e=>onFile(e.target.files?.[0]||null)}/></label>
+    <ImageUploadGuide width={width} height={height} file={file} note="Transparent background is recommended for logos." className="mb-3"/>
+    <label className="btn-secondary w-full cursor-pointer"><Upload size={15}/>{file?'Change selected logo':'Choose logo'}<input type="file" accept="image/webp,image/png,image/jpeg,image/gif" className="hidden" onChange={e=>onFile(e.target.files?.[0]||null)}/></label>
   </div>
 }
 

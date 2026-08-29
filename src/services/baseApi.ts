@@ -13,4 +13,4 @@ const baseQuery:BaseQueryFn<string|FetchArgs,unknown,FetchBaseQueryError>=async(
  return result
 }
 export const unwrap=<T>(response:any):T=>response?.data!==undefined&&response?.success!==undefined?response.data:response
-export const baseApi=createApi({reducerPath:'commerceAdminApi',baseQuery,tagTypes:['Auth','Dashboard','Products','Variants','Categories','Brands','Attributes','Images','Inventory','Warehouses','Movements','Purchases','Suppliers','Orders','Customers','Coupons','Promotions','Payments','Shipping','Shipments','CourierConfigs','Delivery','Returns','Refunds','Reviews','Reports','Staff','Settings','Branding'],endpoints:()=>({})})
+export const baseApi=createApi({reducerPath:'commerceAdminApi',baseQuery,tagTypes:['Auth','Dashboard','Products','Variants','Categories','Brands','Attributes','Images','Inventory','Warehouses','Movements','Purchases','Suppliers','Orders','Customers','Coupons','Promotions','Payments','Shipping','Shipments','CourierConfigs','Delivery','Returns','Refunds','Reviews','Reports','Staff','Settings','Branding','HomepageContent'],endpoints:()=>({})})

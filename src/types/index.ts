@@ -1,7 +1,7 @@
 export type Role='super_admin'|'admin'|'manager'|'product_manager'|'inventory_manager'|'order_manager'|'customer_support'|'marketing_manager'|'finance_manager'|'customer'
 export type ApiEnvelope<T>={success:boolean;message:string;data:T;errors?:Record<string,unknown>}
 export type Paginated<T>={count:number;next:string|null;previous:string|null;results:T[]}
-export type User={id:number;uuid:string;full_name:string;email?:string|null;phone?:string|null;role:Role;is_active?:boolean;is_staff?:boolean;is_superuser?:boolean;created_at?:string;updated_at?:string}
+export type User={id:number;uuid:string;full_name:string;email?:string|null;phone?:string|null;role:Role;is_active?:boolean;is_staff?:boolean;is_superuser?:boolean;dashboard_modules?:string[];dashboard_modules_customized?:boolean;created_at?:string;updated_at?:string}
 export type Brand={id:number;name:string;slug:string;logo?:string|null;cover?:string|null;description?:string;country?:string;website?:string;featured:boolean;active:boolean;seo?:Record<string,unknown>}
 export type Category={id:number;name:string;slug:string;parent?:number|null;image?:string|null;description?:string;active:boolean;order?:number;seo?:Record<string,unknown>}
 export type Attribute={id:number;name:string;slug:string;display_order?:number;is_variant?:boolean;type?:string}
@@ -47,9 +47,22 @@ export type PaymentGatewayConfig={
 }
 export type PaymentMethodOption={code:string;display_name:string;provider:string;environment:string;sort_order:number}
 
+
+export type HomepageBanner={
+  id:number;slot:'promo_left'|'promo_right'|'editorial';slot_label:string;eyebrow?:string;title:string;subtitle?:string;cta_label?:string;
+  link_type:'none'|'custom'|'products'|'category'|'brand'|'product'|'search';link_value?:string;resolved_url?:string;
+  image?:string|null;image_alt?:string;background_color:string;text_color:string;media_background_color:string;active:boolean;created_at?:string;updated_at?:string;
+}
+
 export type SiteBranding={
   id:number;
   website_brand_mode:'text'|'logo';website_name:string;website_tagline:string;website_logo?:string|null;
   dashboard_brand_mode:'text'|'logo';dashboard_name:string;dashboard_tagline:string;dashboard_logo?:string|null;
   primary_color:string;secondary_color:string;created_at?:string;updated_at?:string;
 }
+
+
+export type StaffAccessModule={key:string;label:string;group:string;description:string}
+export type StaffAccessOptions={modules:StaffAccessModule[];role_defaults:Record<string,string[]>;role_allowed:Record<string,string[]>}
+export type AnnouncementItem={id:number;text:string;icon:'gift'|'badge'|'truck'|'sparkles'|'tag'|string;link_type:'none'|'custom'|'products'|'category'|'brand'|'product'|'search';link_value:string;resolved_url?:string;active:boolean;order:number;created_at?:string;updated_at?:string}
+export type HeroSlide={id:number;eyebrow?:string;title:string;subtitle?:string;image:string;mobile_image?:string|null;image_alt?:string;primary_cta_label?:string;primary_cta_url?:string;secondary_cta_label?:string;secondary_cta_url?:string;text_position:'left'|'center'|'right';theme:'light'|'dark';overlay_opacity:number;active:boolean;order:number;starts_at?:string|null;ends_at?:string|null;created_at?:string;updated_at?:string}

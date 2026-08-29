@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useRef} from 'react'
 import {ChevronLeft,ChevronRight,ImagePlus,Star,Trash2,Upload} from 'lucide-react'
+import {ImageUploadGuide} from './ImageUploadGuide'
 
 type Props={
   files:File[]
@@ -44,6 +45,7 @@ export function ImageUploadPicker({files,onFilesChange,primaryIndex,onPrimaryInd
       <span className="mt-1 text-sm text-zinc-500">{description}</span>
       <span className="mt-3 rounded-full bg-white px-3 py-1 text-xs font-semibold text-zinc-600 shadow-sm">Select multiple images</span>
     </button>
+    <ImageUploadGuide width={600} height={600} note="Use square product images for consistent storefront cards and galleries."/>
     <input ref={inputRef} multiple accept="image/jpeg,image/png,image/webp,image/gif" type="file" className="hidden" onChange={e=>{add(Array.from(e.target.files||[]));e.currentTarget.value=''}}/>
 
     {files.length>0&&<>

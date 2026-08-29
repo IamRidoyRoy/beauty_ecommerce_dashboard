@@ -43,6 +43,7 @@ const nav:NavItem[]=[
     {label:'Coupons',to:'/marketing/coupons'},
     {label:'Promotions',to:'/marketing/promotions'},
     {label:'Campaigns',to:'/marketing/campaigns'},
+    {label:'Homepage Content',to:'/marketing/homepage'},
   ]},
   {label:'After Sales',icon:RotateCcw,children:[
     {label:'Reviews',to:'/after-sales/reviews',area:'reviews'},
@@ -60,12 +61,12 @@ const nav:NavItem[]=[
   ]},
 ]
 
-function allowed(role:any,item:NavItem,parentArea?:string){return !item.area&&!parentArea||can(role,item.area||parentArea!)}
+function allowed(user:any,item:NavItem,parentArea?:string){return !item.area&&!parentArea||can(user,item.area||parentArea!)}
 
-function Group({item,role}:{item:NavItem;role:any}){
+function Group({item,user}:{item:NavItem;user:any}){
   const [open,setOpen]=useState(true)
   if(item.children){
-    const children=item.children.filter(c=>allowed(role,c,item.area))
+    const children=item.children.filter(c=>allowed(user,c,item.area))
     if(!children.length)return null
     return <div>
       <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100" onClick={()=>setOpen(!open)}>
@@ -78,7 +79,7 @@ function Group({item,role}:{item:NavItem;role:any}){
       </div>}
     </div>
   }
-  if(!allowed(role,item))return null
+  if(!allowed(user,item))return null
   // Standalone navigation uses the same soft active treatment as child links.
   return <NavLink to={item.to!} className={({isActive})=>`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium ${isActive?'bg-pink-50 font-semibold text-pink-800':'text-zinc-600 hover:bg-zinc-100'}`}>
     {item.icon&&<item.icon size={18}/>} {item.label}
@@ -86,12 +87,12 @@ function Group({item,role}:{item:NavItem;role:any}){
 }
 
 export function Sidebar(){
-  const role=useAppSelector(s=>s.auth.user?.role),mobile=useAppSelector(s=>s.ui.sidebarOpen),dispatch=useAppDispatch(); const {data:branding}=useSiteBrandingQuery()
+  const user=useAppSelector(s=>s.auth.user),mobile=useAppSelector(s=>s.ui.sidebarOpen),dispatch=useAppDispatch(); const {data:branding}=useSiteBrandingQuery()
   return <>
     <div className={`no-print fixed inset-0 z-40 bg-zinc-950/30 lg:hidden ${mobile?'block':'hidden'}`} onClick={()=>dispatch(toggleSidebar(false))}/>
     <aside className={`no-print fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-zinc-200 bg-white transition-transform lg:translate-x-0 ${mobile?'translate-x-0':'-translate-x-full'}`}>
       <div className="flex h-18 items-center justify-between gap-3 border-b border-zinc-100 px-5"><div className="min-w-0">{branding?.dashboard_brand_mode==='logo'&&branding.dashboard_logo?<img src={branding.dashboard_logo} alt={branding.dashboard_name||'Dashboard logo'} className="max-h-9 max-w-[185px] object-contain object-left"/>:<div className="truncate text-lg font-black tracking-tight text-zinc-950">{branding?.dashboard_name||'BEAUTYOPS'}</div>}<div className="truncate text-[10px] font-semibold uppercase tracking-[.20em] text-zinc-400">{branding?.dashboard_tagline||'Commerce Control'}</div></div><button className="shrink-0 rounded-lg p-2 hover:bg-zinc-100 lg:hidden" onClick={()=>dispatch(toggleSidebar(false))}><X size={18}/></button></div>
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">{nav.map(n=><Group key={n.label} item={n} role={role}/>)}</nav>
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">{nav.map(n=><Group key={n.label} item={n} user={user}/>)}</nav>
       <div className="border-t border-zinc-100 p-4 text-xs leading-5 text-zinc-400">Operational dashboard<br/>DRF management API</div>
     </aside>
   </>
