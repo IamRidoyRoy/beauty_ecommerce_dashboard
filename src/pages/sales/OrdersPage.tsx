@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {useNavigate} from 'react-router'
+import {useNavigate,useSearchParams} from 'react-router'
 import {useAppSelector} from '../../store/hooks'
 import {can} from '../../utils/permissions'
 import {Eye,FileText,Plus,Printer,Search,X} from 'lucide-react'
@@ -15,8 +15,10 @@ import {useDebouncedValue} from '../../hooks/useDebouncedValue'
 import {rowsOf,countOf} from '../../utils/data'
 import {money,date,titleCase} from '../../utils/format'
 
+const localDate=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
 export default function OrdersPage(){
-  const nav=useNavigate(); const role=useAppSelector(s=>s.auth.user?.role); const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(''),[dateTo,setDateTo]=useState('')
+  const nav=useNavigate(); const [params]=useSearchParams(); const role=useAppSelector(s=>s.auth.user?.role); const today=params.get('period')==='today'?localDate():''; const [page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(params.get('status')||''),[payment,setPayment]=useState(''),[fulfillment,setFulfillment]=useState(''),[shipping,setShipping]=useState(''),[dateFrom,setDateFrom]=useState(today),[dateTo,setDateTo]=useState(today)
   const debounced=useDebouncedValue(search); const q=useOrdersQuery({page,search:debounced||undefined,order_status:status||undefined,payment_status:payment||undefined,fulfillment_status:fulfillment||undefined,shipping_method:shipping||undefined,date_from:dateFrom||undefined,date_to:dateTo||undefined,ordering:'-created_at'}); const sm=useShippingMethodsQuery()
   const clear=()=>{setSearch('');setStatus('');setPayment('');setFulfillment('');setShipping('');setDateFrom('');setDateTo('');setPage(1)}
   const cols:Column<any>[]=[

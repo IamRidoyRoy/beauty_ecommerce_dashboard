@@ -4,6 +4,7 @@ import {useState} from 'react'
 import {useAppDispatch,useAppSelector} from '../../store/hooks'
 import {toggleSidebar} from '../../features/ui/uiSlice'
 import {can} from '../../utils/permissions'
+import {useSiteBrandingQuery} from '../../services/brandingApi'
 
 type NavItem={label:string;to?:string;icon?:any;area?:string;children?:NavItem[]}
 
@@ -41,7 +42,6 @@ const nav:NavItem[]=[
     {label:'Coupons',to:'/marketing/coupons'},
     {label:'Promotions',to:'/marketing/promotions'},
     {label:'Campaigns',to:'/marketing/campaigns'},
-    {label:'Pixel & Tracking',to:'/marketing/tracking'},
   ]},
   {label:'After Sales',icon:RotateCcw,children:[
     {label:'Reviews',to:'/after-sales/reviews',area:'reviews'},
@@ -52,8 +52,10 @@ const nav:NavItem[]=[
   {label:'Users & Roles',to:'/staff',icon:UserCog,area:'staff'},
   {label:'Settings',icon:Settings,children:[
     {label:'General',to:'/settings',area:'settings'},
+    {label:'Branding & Theme',to:'/settings/branding',area:'settings'},
     {label:'Payment Gateways',to:'/settings/payment-gateways',area:'payment_gateways'},
     {label:'Courier Integrations',to:'/settings/courier-integrations',area:'courier_gateways'},
+    {label:'Pixel & Tracking',to:'/settings/pixel-tracking',area:'marketing'},
   ]},
 ]
 
@@ -83,11 +85,11 @@ function Group({item,role}:{item:NavItem;role:any}){
 }
 
 export function Sidebar(){
-  const role=useAppSelector(s=>s.auth.user?.role),mobile=useAppSelector(s=>s.ui.sidebarOpen),dispatch=useAppDispatch()
+  const role=useAppSelector(s=>s.auth.user?.role),mobile=useAppSelector(s=>s.ui.sidebarOpen),dispatch=useAppDispatch(); const {data:branding}=useSiteBrandingQuery()
   return <>
     <div className={`no-print fixed inset-0 z-40 bg-zinc-950/30 lg:hidden ${mobile?'block':'hidden'}`} onClick={()=>dispatch(toggleSidebar(false))}/>
     <aside className={`no-print fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-zinc-200 bg-white transition-transform lg:translate-x-0 ${mobile?'translate-x-0':'-translate-x-full'}`}>
-      <div className="flex h-18 items-center justify-between border-b border-zinc-100 px-5"><div><div className="text-lg font-black tracking-tight text-zinc-950">BEAUTY<span className="text-pink-700">OPS</span></div><div className="text-[10px] font-semibold uppercase tracking-[.24em] text-zinc-400">Commerce Control</div></div><button className="rounded-lg p-2 hover:bg-zinc-100 lg:hidden" onClick={()=>dispatch(toggleSidebar(false))}><X size={18}/></button></div>
+      <div className="flex h-18 items-center justify-between gap-3 border-b border-zinc-100 px-5"><div className="min-w-0">{branding?.dashboard_brand_mode==='logo'&&branding.dashboard_logo?<img src={branding.dashboard_logo} alt={branding.dashboard_name||'Dashboard logo'} className="max-h-9 max-w-[185px] object-contain object-left"/>:<div className="truncate text-lg font-black tracking-tight text-zinc-950">{branding?.dashboard_name||'BEAUTYOPS'}</div>}<div className="truncate text-[10px] font-semibold uppercase tracking-[.20em] text-zinc-400">{branding?.dashboard_tagline||'Commerce Control'}</div></div><button className="shrink-0 rounded-lg p-2 hover:bg-zinc-100 lg:hidden" onClick={()=>dispatch(toggleSidebar(false))}><X size={18}/></button></div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">{nav.map(n=><Group key={n.label} item={n} role={role}/>)}</nav>
       <div className="border-t border-zinc-100 p-4 text-xs leading-5 text-zinc-400">Operational dashboard<br/>DRF management API</div>
     </aside>

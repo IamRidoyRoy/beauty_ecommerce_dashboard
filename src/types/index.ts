@@ -38,3 +38,10 @@ export type PaymentGatewayConfig={
   updated_by?:number|null;updated_by_name?:string;created_at?:string;updated_at?:string
 }
 export type PaymentMethodOption={code:string;display_name:string;provider:string;environment:string;sort_order:number}
+
+export type SiteBranding={
+  id:number;
+  website_brand_mode:'text'|'logo';website_name:string;website_tagline:string;website_logo?:string|null;
+  dashboard_brand_mode:'text'|'logo';dashboard_name:string;dashboard_tagline:string;dashboard_logo?:string|null;
+  primary_color:string;secondary_color:string;created_at?:string;updated_at?:string;
+}

@@ -11,7 +11,7 @@ import {useReturnsQuery} from '../services/returnApi'
 import {useCustomersQuery} from '../services/customerApi'
 import {StatusBadge} from '../components/ui/StatusBadge'
 import {LoadingRows} from '../components/ui/Loading'
-import {money,date} from '../utils/format'
+import {money,moneyWhole,date} from '../utils/format'
 import {rowsOf} from '../utils/data'
 import {useAppSelector} from '../store/hooks'
 import {can} from '../utils/permissions'
@@ -21,13 +21,21 @@ const MiniEmpty=({text}:{text:string})=><div className="p-8 text-center text-sm 
 export default function DashboardPage(){
   const role=useAppSelector(s=>s.auth.user?.role); const d=useDashboardQuery({days:1},{pollingInterval:20000,refetchOnFocus:true,refetchOnReconnect:true,refetchOnMountOrArgChange:true}); const sales=useReportQuery({type:'sales',days:30},{pollingInterval:20000,refetchOnFocus:true,refetchOnReconnect:true,refetchOnMountOrArgChange:true}); const products=useReportQuery({type:'product-performance',days:30},{pollingInterval:20000,refetchOnFocus:true,refetchOnReconnect:true,refetchOnMountOrArgChange:true}); const customerReport=useReportQuery({type:'customers',days:30},{pollingInterval:30000,refetchOnFocus:true,refetchOnReconnect:true,refetchOnMountOrArgChange:true}); const orders=useOrdersQuery({page_size:6,ordering:'-created_at'}); const stock=useInventoryQuery({ordering:'available_stock',page_size:6,low_stock:true}); const returns=useReturnsQuery({status:'requested',page_size:5}); const customers=useCustomersQuery({ordering:'-created_at',page_size:5})
   const s:any=d.data||{}; const salesRows=Array.isArray(sales.data)?sales.data:[]; const productRows=Array.isArray(products.data)?products.data:[]; const customerRows=Array.isArray(customerReport.data)?customerReport.data:[]; const orderRows=rowsOf<any>(orders.data).slice(0,6); const stockRows=rowsOf<any>(stock.data).slice(0,6); const returnRows=rowsOf<any>(returns.data).slice(0,5); const recentCustomers=rowsOf<any>(customers.data).slice(0,5)
-  const stat=(label:string,value:any,icon:any,tone?:any)=>d.isLoading?<div className="h-28 animate-pulse rounded-2xl bg-zinc-200"/>:<StatCard label={label} value={value} icon={icon} tone={tone}/>
+  const stat=(label:string,value:any,icon:any,tone?:any,to?:string)=>d.isLoading?<div className="h-28 animate-pulse rounded-2xl bg-zinc-200"/>:<StatCard label={label} value={value} icon={icon} tone={tone} to={to}/>
   return <>
-    <PageHeader title="Dashboard" description="Placed orders count in revenue immediately; cancelled and completed returned/refunded orders are excluded." actions={<>{can(role,'order_write')&&<Link className="btn-brand" to="/sales/orders/new"><Plus size={16}/>Create Order</Link>}<button className="btn-secondary" onClick={()=>{d.refetch();sales.refetch();products.refetch();orders.refetch();stock.refetch()}}>Refresh</button></>}/>
+    <PageHeader title="Dashboard" description="Placed orders count in revenue immediately; cancelled and completed returned/refunded orders are excluded." actions={<>{can(role,'order_write')&&<Link className="btn-brand px-5 py-3 text-[15px] shadow-lg shadow-pink-200/70 ring-1 ring-pink-800/10 hover:-translate-y-0.5 hover:shadow-xl" to="/sales/orders/new"><Plus size={16}/>Create Order</Link>}<button className="btn-secondary" onClick={()=>{d.refetch();sales.refetch();products.refetch();orders.refetch();stock.refetch()}}>Refresh</button></>}/>
     {d.isError&&<div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Dashboard KPI API could not be loaded. Operational panels below remain available. <button className="font-semibold underline" onClick={()=>d.refetch()}>Retry</button></div>}
-    <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
-      {stat("Today's Revenue",money(s.revenue),DollarSign)}{stat("Today's Orders",s.orders??0,ShoppingBag)}{stat('Units Sold',s.units_sold??0,ShoppingBasket)}{stat('New Customers',s.customers??0,Users)}{stat('Average Order Value',money(s.aov),TrendingUp)}
-      {stat('Gross Profit',money(s.gross_profit),DollarSign,Number(s.gross_profit||0)>=0?'success':'danger')}{stat('Pending Orders',s.pending_orders??0,Clock,'warning')}{stat('Return Requests',s.return_requests??0,RotateCcw,'warning')}{stat('Low Stock',s.low_stock_rows??0,TriangleAlert,'warning')}{stat('Out of Stock',s.out_of_stock_rows??0,PackageX,'danger')}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+      {stat("Today's Revenue",moneyWhole(s.revenue),DollarSign,undefined,'/reports?type=sales&period=today')}
+      {stat("Today's Orders",s.orders??0,ShoppingBag,undefined,'/sales/orders?period=today')}
+      {stat('Units Sold',s.units_sold??0,ShoppingBasket,undefined,'/reports?type=product-performance&period=today')}
+      {stat('New Customers',s.customers??0,Users,undefined,'/customers')}
+      {stat('Average Order Value',moneyWhole(s.aov),TrendingUp,undefined,'/reports?type=sales&period=today')}
+      {stat('Gross Profit',moneyWhole(s.gross_profit),DollarSign,Number(s.gross_profit||0)>=0?'success':'danger','/reports?type=profit&period=today')}
+      {stat('Pending Orders',s.pending_orders??0,Clock,'warning','/sales/orders?status=pending')}
+      {stat('Return Requests',s.return_requests??0,RotateCcw,'warning','/after-sales/returns?status=requested')}
+      {stat('Low Stock',s.low_stock_rows??0,TriangleAlert,'warning','/inventory/stock?low_stock=1')}
+      {stat('Out of Stock',s.out_of_stock_rows??0,PackageX,'danger','/inventory/stock?out_of_stock=1')}
     </div>
     <div className="mt-6 grid gap-5 lg:grid-cols-2">
       <section className="panel p-5"><h2 className="font-semibold">Revenue trend</h2><p className="mb-3 text-xs text-zinc-400">Last 30 days</p>{sales.isLoading?<div className="h-64 animate-pulse rounded-xl bg-zinc-100"/>:<TrendChart data={salesRows.map((x:any)=>({name:String(x.day||'').slice(5),value:Number(x.sales||0)}))}/>}</section>
