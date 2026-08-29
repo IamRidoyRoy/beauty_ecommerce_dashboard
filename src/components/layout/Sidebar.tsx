@@ -15,7 +15,8 @@ const nav:NavItem[]=[
   {label:'Sales',icon:ShoppingCart,children:[
     {label:'Orders',to:'/sales/orders',area:'orders'},
     {label:'Payments',to:'/sales/payments',area:'payments'},
-    {label:'Shipments',to:'/sales/shipments',area:'shipping'},
+    {label:'Courier',to:'/sales/courier',area:'shipping'},
+    {label:'Shipment Tracking',to:'/sales/shipments',area:'shipping'},
     {label:'Delivery Areas',to:'/sales/delivery',area:'shipping'},
   ]},
   {label:'Catalog',icon:Package,area:'catalog',children:[

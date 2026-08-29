@@ -20,7 +20,6 @@ import { StatusBadge } from '../../components/ui/StatusBadge'
 import { toast } from '../../features/ui/uiSlice'
 import { useCreateReturnForOrderMutation, useCreateRefundMutation } from '../../services/returnApi'
 import { useOrderQuery, useTransitionOrderMutation } from '../../services/orderApi'
-import { useAvailableCouriersQuery, useBookShipmentMutation } from '../../services/shippingApi'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { apiError } from '../../utils/data'
 import { date, money, titleCase } from '../../utils/format'
@@ -31,7 +30,6 @@ const sequence = [
   'confirmed',
   'processing',
   'packed',
-  'ready_to_ship',
   'shipped',
   'out_for_delivery',
   'delivered',
@@ -43,18 +41,14 @@ export default function OrderDetailPage() {
   const { orderNumber = '' } = useParams()
   const q = useOrderQuery(orderNumber)
   const [transition, { isLoading }] = useTransitionOrderMutation()
-  const [bookShipment, { isLoading: isBookingShipment }] = useBookShipmentMutation()
-  const courierOptions = useAvailableCouriersQuery()
   const [createReturn] = useCreateReturnForOrderMutation()
   const [createRefund] = useCreateRefundMutation()
   const dispatch = useAppDispatch()
   const role = useAppSelector((s) => s.auth.user?.role)
 
   const [selectedStatus, setSelectedStatus] = useState('')
-  const [shipOpen, setShipOpen] = useState(false)
   const [returnOpen, setReturnOpen] = useState(false)
   const [refundOpen, setRefundOpen] = useState(false)
-  const [ship, setShip] = useState({ provider: '', delivery_area_id: '', delivery_area: '', weight: '' })
   const [reason, setReason] = useState('')
   const [returnQty, setReturnQty] = useState<Record<number, number>>({})
   const [refund, setRefund] = useState({ payment: '', amount: '', reason: '' })
@@ -82,14 +76,12 @@ export default function OrderDetailPage() {
   const current = sequence.indexOf(order.order_status)
   const payment = order.payments?.[0]
   const couponEntry=(order.promotion_snapshot||[]).find((x:any)=>x?.type==='coupon'||(order.coupon_code_snapshot&&x?.code===order.coupon_code_snapshot)) as any
-  const forwardStatuses = current >= 0 ? sequence.slice(current) : [order.order_status]
-  const canChangeStatus = orderWrite && current >= 0 && !terminalStatuses.has(order.order_status)
   const activeShipment = order.shipments?.find((row) => !['cancelled', 'failed', 'returned'].includes(row.status))
-  const canBookShipment =
-    orderWrite &&
-    !activeShipment &&
-    current >= sequence.indexOf('ready_to_ship') &&
-    current < sequence.indexOf('delivered')
+  const packedIndex = sequence.indexOf('packed')
+  const selectableLifecycle = activeShipment ? sequence : sequence.slice(0, packedIndex + 1)
+  const forwardStatuses = current >= 0 ? selectableLifecycle.filter((_, index) => index >= current) : [order.order_status]
+  const canChangeStatus = orderWrite && current >= 0 && !terminalStatuses.has(order.order_status)
+  const canBookShipment = orderWrite && !activeShipment && order.order_status === 'packed'
 
   return (
     <>
@@ -129,10 +121,10 @@ export default function OrderDetailPage() {
             )}
 
             {canBookShipment && (
-              <button type="button" className="btn-secondary" onClick={() => setShipOpen(true)}>
+              <Link to="/sales/courier" className="btn-secondary">
                 <Truck size={16} />
-                Shipment
-              </button>
+                Submit to Courier
+              </Link>
             )}
 
             {orderWrite && !terminalStatuses.has(order.order_status) && (
@@ -347,54 +339,6 @@ export default function OrderDetailPage() {
           </section>
         </aside>
       </div>
-
-      <Modal open={shipOpen} onClose={() => setShipOpen(false)} title="Book Shipment">
-        <div className="space-y-4">
-          <Field label="Courier">
-            <Select value={ship.provider} onChange={(e) => setShip({ ...ship, provider: e.target.value })}>
-              <option value="">Select active courier</option>
-              {(courierOptions.data || []).map((x:any) => (
-                <option key={x.provider} value={x.provider}>{x.display_name}{x.environment === 'sandbox' ? ' (Sandbox)' : ''}</option>
-              ))}
-            </Select>
-          </Field>
-          {ship.provider === 'redx' && <>
-            <Field label="RedX Delivery Area ID" hint="Optional; backend tries to match thana/district automatically.">
-              <Input type="number" value={ship.delivery_area_id} onChange={(e) => setShip({ ...ship, delivery_area_id: e.target.value })}/>
-            </Field>
-            <Field label="RedX Delivery Area Name">
-              <Input value={ship.delivery_area} onChange={(e) => setShip({ ...ship, delivery_area: e.target.value })}/>
-            </Field>
-          </>}
-          <Field label={ship.provider === 'redx' ? 'Parcel Weight (grams)' : 'Parcel Weight (kg)'}>
-            <Input type="number" value={ship.weight} onChange={(e) => setShip({ ...ship, weight: e.target.value })} placeholder={ship.provider === 'redx' ? '500' : '0.5'}/>
-          </Field>
-          <button
-            className="btn-brand w-full"
-            disabled={isBookingShipment || !ship.provider}
-            onClick={async () => {
-              try {
-                const options:any = {}
-                if (ship.delivery_area_id) options.delivery_area_id = Number(ship.delivery_area_id)
-                if (ship.delivery_area) options.delivery_area = ship.delivery_area
-                if (ship.weight) {
-                  if (ship.provider === 'redx') options.weight_grams = Number(ship.weight)
-                  else options.weight_kg = Number(ship.weight)
-                }
-                await bookShipment({ order: order.id, provider: ship.provider, options }).unwrap()
-                dispatch(toast({ type: 'success', message: 'Shipment booked with courier.' }))
-                setShipOpen(false)
-                q.refetch()
-              } catch (e) {
-                dispatch(toast({ type: 'error', message: apiError(e) }))
-              }
-            }}
-          >
-            <Truck size={16} />
-            {isBookingShipment ? 'Booking…' : 'Book With Courier'}
-          </button>
-        </div>
-      </Modal>
 
       <Modal open={returnOpen} onClose={() => setReturnOpen(false)} title="Create Return">
         <div className="space-y-3">

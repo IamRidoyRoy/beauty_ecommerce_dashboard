@@ -17,6 +17,14 @@ export type Purchase={id:number;purchase_number:string;supplier:number;warehouse
 export type OrderItem={id:number;product:number;variant?:number|null;product_name_snapshot:string;sku_snapshot:string;variant_snapshot?:Record<string,string>|null;image_snapshot?:string;quantity:number;unit_price:string;discount:string;tax:string;total:string;cost_price_snapshot?:string;returned_quantity:number}
 export type Payment={id:number;public_token?:string;order:number;order_number?:string;customer_name?:string;customer_phone?:string;method:string;currency?:string;transaction_id?:string;gateway_reference?:string;amount:string;status:string;initiated_at?:string|null;paid_at?:string|null;last_verified_at?:string|null;failure_code?:string;failure_message?:string;metadata?:Record<string,any>;created_at?:string;updated_at?:string}
 export type Shipment={id:number;order:number;order_number?:string;customer_name?:string;customer_phone?:string;courier:string;courier_display?:string;environment?:'sandbox'|'live'|string;external_id?:string;tracking_code?:string;status:string;provider_status?:string;provider_message?:string;booking_source?:string;last_synced_at?:string|null;booked_at?:string|null;picked_up_at?:string|null;dispatched_at?:string|null;delivered_at?:string|null;cancelled_at?:string|null;can_cancel?:boolean;created_at?:string;updated_at?:string}
+
+export type CourierDispatchOrder={
+  id:number;order_number:string;customer_name:string;customer_phone:string;shipping_address_snapshot:Record<string,string>;
+  total:string;order_status:'packed'|'shipped'|string;payment_status:string;item_count:number;submitted_courier:string;
+  submitted_courier_display:string;tracking_code:string;shipment_status:string;shipment_id?:number|null;can_submit:boolean;
+  created_at:string;updated_at:string;
+}
+
 export type CourierField={key:string;label:string;required:boolean;secret:boolean;multiline?:boolean;placeholder?:string;default?:string}
 export type CourierSchema={label:string;description:string;fields:CourierField[];supports_sandbox:boolean;supports_cancel:boolean;sandbox_base_url?:string;live_base_url?:string}
 export type CourierConfig={id:number;provider:'pathao'|'steadfast'|'redx'|'carrybee'|string;display_name:string;is_active:boolean;sandbox_mode:boolean;sort_order:number;auto_book_enabled:boolean;auto_book_order_status:string;cancel_api_enabled:boolean;schema:CourierSchema;sandbox_values:Record<string,string>;live_values:Record<string,string>;sandbox_field_status:Record<string,boolean>;live_field_status:Record<string,boolean>;sandbox_configured:boolean;live_configured:boolean;current_environment:'sandbox'|'live';current_environment_configured:boolean;updated_by_name?:string;created_at?:string;updated_at?:string}

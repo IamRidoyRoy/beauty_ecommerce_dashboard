@@ -18,7 +18,7 @@ import {useDebouncedValue} from '../../hooks/useDebouncedValue'
 
 export default function ShipmentsPage(){
  const dispatch=useAppDispatch(),[page,setPage]=useState(1),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[courier,setCourier]=useState(''),[open,setOpen]=useState(false),[reasonOpen,setReasonOpen]=useState<any>(null),[historyOpen,setHistoryOpen]=useState<any>(null),[reason,setReason]=useState(''),[form,setForm]=useState({order:'',provider:'',delivery_area_id:'',delivery_area:'',city_id:'',zone_id:'',area_id:'',weight:''})
- const debounced=useDebouncedValue(search,300),q=useShipmentsQuery({page,page_size:50,search:debounced||undefined,status:status||undefined,courier:courier||undefined}),orders=useOrdersQuery({page_size:200}),couriers=useAvailableCouriersQuery()
+ const debounced=useDebouncedValue(search,300),q=useShipmentsQuery({page,page_size:50,search:debounced||undefined,status:status||undefined,courier:courier||undefined}),orders=useOrdersQuery({page_size:200,order_status:'packed'}),couriers=useAvailableCouriersQuery()
  const [book,{isLoading:booking}]=useBookShipmentMutation(),[track]=useTrackShipmentMutation(),[cancel]=useCancelShipmentMutation(),[requestReturn]=useRequestShipmentReturnMutation(),[loadHistory,{data:historyData,isFetching:historyLoading}]=useLazyShipmentHistoryQuery()
  const opts=rowsOf<any>(couriers.data)
  const actTrack=async(id:number)=>{try{await track(id).unwrap();dispatch(toast({type:'success',message:'Tracking synced.'}))}catch(e){dispatch(toast({type:'error',message:apiError(e)}))}}
