@@ -20,7 +20,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge'
 import { toast } from '../../features/ui/uiSlice'
 import { useCreateReturnForOrderMutation, useCreateRefundMutation } from '../../services/returnApi'
 import { useOrderQuery, useTransitionOrderMutation } from '../../services/orderApi'
-import { useCreateShipmentMutation } from '../../services/shippingApi'
+import { useAvailableCouriersQuery, useBookShipmentMutation } from '../../services/shippingApi'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { apiError } from '../../utils/data'
 import { date, money, titleCase } from '../../utils/format'
@@ -43,7 +43,8 @@ export default function OrderDetailPage() {
   const { orderNumber = '' } = useParams()
   const q = useOrderQuery(orderNumber)
   const [transition, { isLoading }] = useTransitionOrderMutation()
-  const [createShipment] = useCreateShipmentMutation()
+  const [bookShipment, { isLoading: isBookingShipment }] = useBookShipmentMutation()
+  const courierOptions = useAvailableCouriersQuery()
   const [createReturn] = useCreateReturnForOrderMutation()
   const [createRefund] = useCreateRefundMutation()
   const dispatch = useAppDispatch()
@@ -53,7 +54,7 @@ export default function OrderDetailPage() {
   const [shipOpen, setShipOpen] = useState(false)
   const [returnOpen, setReturnOpen] = useState(false)
   const [refundOpen, setRefundOpen] = useState(false)
-  const [ship, setShip] = useState({ courier: 'Pathao', tracking_code: '', status: 'booked' })
+  const [ship, setShip] = useState({ provider: '', delivery_area_id: '', delivery_area: '', weight: '' })
   const [reason, setReason] = useState('')
   const [returnQty, setReturnQty] = useState<Record<number, number>>({})
   const [refund, setRefund] = useState({ payment: '', amount: '', reason: '' })
@@ -83,8 +84,10 @@ export default function OrderDetailPage() {
   const couponEntry=(order.promotion_snapshot||[]).find((x:any)=>x?.type==='coupon'||(order.coupon_code_snapshot&&x?.code===order.coupon_code_snapshot)) as any
   const forwardStatuses = current >= 0 ? sequence.slice(current) : [order.order_status]
   const canChangeStatus = orderWrite && current >= 0 && !terminalStatuses.has(order.order_status)
+  const activeShipment = order.shipments?.find((row) => !['cancelled', 'failed', 'returned'].includes(row.status))
   const canBookShipment =
     orderWrite &&
+    !activeShipment &&
     current >= sequence.indexOf('ready_to_ship') &&
     current < sequence.indexOf('delivered')
 
@@ -315,6 +318,27 @@ export default function OrderDetailPage() {
             </div>
           </section>
 
+          {order.shipments?.length ? (
+            <section className="panel p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-semibold">Courier Shipment</h2>
+                <Link to="/sales/shipments" className="text-xs font-semibold text-pink-700">View shipments</Link>
+              </div>
+              <div className="mt-4 space-y-3">
+                {order.shipments.map((row) => (
+                  <div key={row.id} className="rounded-xl border border-zinc-200 p-3 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <b>{titleCase(row.courier)}</b>
+                      <StatusBadge value={row.status} />
+                    </div>
+                    <div className="mt-2 text-xs text-zinc-500">Tracking: {row.tracking_code || row.external_id || 'Pending'}</div>
+                    {row.provider_status && <div className="mt-1 text-xs text-zinc-400">Provider: {titleCase(row.provider_status)}</div>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="panel p-5">
             <h2 className="font-semibold">Notes</h2>
             <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-500">
@@ -327,41 +351,47 @@ export default function OrderDetailPage() {
       <Modal open={shipOpen} onClose={() => setShipOpen(false)} title="Book Shipment">
         <div className="space-y-4">
           <Field label="Courier">
-            <Select value={ship.courier} onChange={(e) => setShip({ ...ship, courier: e.target.value })}>
-              {['Pathao', 'Steadfast', 'RedX', 'Other'].map((x) => (
-                <option key={x}>{x}</option>
+            <Select value={ship.provider} onChange={(e) => setShip({ ...ship, provider: e.target.value })}>
+              <option value="">Select active courier</option>
+              {(courierOptions.data || []).map((x:any) => (
+                <option key={x.provider} value={x.provider}>{x.display_name}{x.environment === 'sandbox' ? ' (Sandbox)' : ''}</option>
               ))}
             </Select>
           </Field>
-          <Field label="Tracking Code">
-            <Input
-              value={ship.tracking_code}
-              onChange={(e) => setShip({ ...ship, tracking_code: e.target.value })}
-            />
+          {ship.provider === 'redx' && <>
+            <Field label="RedX Delivery Area ID" hint="Optional; backend tries to match thana/district automatically.">
+              <Input type="number" value={ship.delivery_area_id} onChange={(e) => setShip({ ...ship, delivery_area_id: e.target.value })}/>
+            </Field>
+            <Field label="RedX Delivery Area Name">
+              <Input value={ship.delivery_area} onChange={(e) => setShip({ ...ship, delivery_area: e.target.value })}/>
+            </Field>
+          </>}
+          <Field label={ship.provider === 'redx' ? 'Parcel Weight (grams)' : 'Parcel Weight (kg)'}>
+            <Input type="number" value={ship.weight} onChange={(e) => setShip({ ...ship, weight: e.target.value })} placeholder={ship.provider === 'redx' ? '500' : '0.5'}/>
           </Field>
           <button
             className="btn-brand w-full"
+            disabled={isBookingShipment || !ship.provider}
             onClick={async () => {
               try {
-                await createShipment({
-                  order: order.id,
-                  courier: ship.courier,
-                  tracking_code: ship.tracking_code,
-                  status: 'booked',
-                  payload: {},
-                }).unwrap()
-                if (sequence.indexOf(order.order_status) < sequence.indexOf('shipped')) {
-                  await act('shipped')
+                const options:any = {}
+                if (ship.delivery_area_id) options.delivery_area_id = Number(ship.delivery_area_id)
+                if (ship.delivery_area) options.delivery_area = ship.delivery_area
+                if (ship.weight) {
+                  if (ship.provider === 'redx') options.weight_grams = Number(ship.weight)
+                  else options.weight_kg = Number(ship.weight)
                 }
-                dispatch(toast({ type: 'success', message: 'Shipment saved.' }))
+                await bookShipment({ order: order.id, provider: ship.provider, options }).unwrap()
+                dispatch(toast({ type: 'success', message: 'Shipment booked with courier.' }))
                 setShipOpen(false)
+                q.refetch()
               } catch (e) {
                 dispatch(toast({ type: 'error', message: apiError(e) }))
               }
             }}
           >
             <Truck size={16} />
-            Save Shipment
+            {isBookingShipment ? 'Booking…' : 'Book With Courier'}
           </button>
         </div>
       </Modal>

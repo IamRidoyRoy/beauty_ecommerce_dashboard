@@ -50,7 +50,11 @@ const nav:NavItem[]=[
   ]},
   {label:'Reports',to:'/reports',icon:BarChart3,area:'reports'},
   {label:'Users & Roles',to:'/staff',icon:UserCog,area:'staff'},
-  {label:'Settings',to:'/settings',icon:Settings,area:'settings'},
+  {label:'Settings',icon:Settings,children:[
+    {label:'General',to:'/settings',area:'settings'},
+    {label:'Payment Gateways',to:'/settings/payment-gateways',area:'payment_gateways'},
+    {label:'Courier Integrations',to:'/settings/courier-integrations',area:'courier_gateways'},
+  ]},
 ]
 
 function allowed(role:any,item:NavItem,parentArea?:string){return !item.area&&!parentArea||can(role,item.area||parentArea!)}

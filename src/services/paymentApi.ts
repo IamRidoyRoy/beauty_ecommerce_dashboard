@@ -1,2 +1,29 @@
-import {baseApi,unwrap} from './baseApi';const tr=(x:any)=>unwrap(x)
-export const paymentApi=baseApi.injectEndpoints({endpoints:b=>({payments:b.query<any,Record<string,any>|void>({query:p=>({url:'/admin/payments/',params:p||{}}),transformResponse:tr,providesTags:['Payments']}),updatePayment:b.mutation<any,{id:number;body:any}>({query:x=>({url:`/admin/payments/${x.id}/`,method:'PATCH',body:x.body}),transformResponse:tr,invalidatesTags:['Payments','Orders','Dashboard','Reports']})})});export const {usePaymentsQuery,useUpdatePaymentMutation}=paymentApi
+import { baseApi, unwrap } from './baseApi'
+import type { Payment } from '../types'
+
+const tr = (x: any) => unwrap(x)
+
+export const paymentApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    payments: builder.query<any, Record<string, any> | void>({
+      query: (params) => ({ url: '/admin/payments/', params: params || {} }),
+      transformResponse: tr,
+      providesTags: ['Payments'],
+    }),
+    reconcilePayment: builder.mutation<Payment, number>({
+      query: (id) => ({ url: `/admin/payments/${id}/reconcile/`, method: 'POST' }),
+      transformResponse: tr,
+      invalidatesTags: ['Payments', 'Orders', 'Dashboard', 'Reports'],
+    }),
+    paymentReconciliations: builder.query<any[], number>({
+      query: (id) => ({ url: `/admin/payments/${id}/reconciliations/` }),
+      transformResponse: tr,
+    }),
+  }),
+})
+
+export const {
+  usePaymentsQuery,
+  useReconcilePaymentMutation,
+  usePaymentReconciliationsQuery,
+} = paymentApi

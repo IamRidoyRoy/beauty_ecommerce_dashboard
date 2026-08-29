@@ -9,6 +9,7 @@ import {useCustomersQuery} from '../../services/customerApi'
 import {useDistrictsQuery,useThanasQuery} from '../../services/deliveryApi'
 import {useShippingMethodsQuery} from '../../services/shippingApi'
 import {useCreateAdminOrderMutation,useValidateAdminCouponMutation} from '../../services/orderApi'
+import {useAvailablePaymentMethodsQuery} from '../../services/paymentGatewayApi'
 import {useDebouncedValue} from '../../hooks/useDebouncedValue'
 import {money} from '../../utils/format'
 import {apiError,rowsOf} from '../../utils/data'
@@ -99,6 +100,8 @@ export default function CreateOrderPage(){
   const thanasQ=useThanasQuery({active:true,city:district||undefined},{skip:!district})
   const shippingQ=useShippingMethodsQuery()
   const [form,setForm]=useState({name:'',phone:'',thana:'',address:'',label:'',shipping_method:'',payment_method:'cod',coupon_code:'',order_note:''})
+  const paymentMethodsQ=useAvailablePaymentMethodsQuery()
+  const paymentMethods=paymentMethodsQ.data||[{code:'cod',display_name:'Cash on Delivery',provider:'cod',environment:'offline',sort_order:0}]
   const [items,setItems]=useState<DraftItem[]>([])
 
   useEffect(()=>{setCouponPreview(null)},[form.coupon_code,form.phone,items])
@@ -262,7 +265,7 @@ export default function CreateOrderPage(){
 
       <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
         <section className="panel p-5"><h2 className="font-semibold">Order settings</h2>
-          <div className="mt-4 space-y-4"><Field label="Payment method" required><Select required value={form.payment_method} onChange={e=>setForm({...form,payment_method:e.target.value})}><option value="cod">Cash on Delivery</option><option value="bkash">bKash</option><option value="nagad">Nagad</option><option value="card">Card</option></Select></Field>
+          <div className="mt-4 space-y-4"><Field label="Payment method" required><Select required value={form.payment_method} onChange={e=>setForm({...form,payment_method:e.target.value})}>{paymentMethods.map(method=><option key={method.code} value={method.code}>{method.display_name}{method.environment==='sandbox'?' (Sandbox)':''}</option>)}</Select></Field>
           <Field label="Shipping method"><Select value={form.shipping_method} onChange={e=>setForm({...form,shipping_method:e.target.value})}><option value="">Area-based delivery only</option>{shipping.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</Select></Field>
           <Field label="Coupon code">
             <div className="flex gap-2"><Input value={form.coupon_code} onChange={e=>setForm({...form,coupon_code:e.target.value.toUpperCase()})} placeholder="Optional"/><button type="button" className="btn-secondary shrink-0" disabled={validatingCoupon||!form.coupon_code.trim()||!couponItemsReady} onClick={applyCoupon}>{validatingCoupon?'Checking…':'Apply'}</button></div>
