@@ -1,5 +1,5 @@
 import {NavLink} from 'react-router'
-import {LayoutDashboard,Package,Boxes,ShoppingCart,Users,Tags,RotateCcw,BarChart3,UserCog,Settings,ChevronDown,X,ShoppingBasket} from 'lucide-react'
+import {LayoutDashboard,Package,Boxes,ShoppingCart,Users,Tags,RotateCcw,BarChart3,UserCog,Settings,ChevronDown,X,ShoppingBasket,Truck} from 'lucide-react'
 import {useState} from 'react'
 import {useAppDispatch,useAppSelector} from '../../store/hooks'
 import {toggleSidebar} from '../../features/ui/uiSlice'
@@ -8,42 +8,44 @@ import {useSiteBrandingQuery} from '../../services/brandingApi'
 
 type NavItem={label:string;to?:string;icon?:any;area?:string;children?:NavItem[]}
 
-// Operational priority: Dashboard first, Sales second. The remaining business
-// modules follow the normal catalog -> stock -> procurement workflow.
+// Operational priority: Dashboard first, then Sales and the dedicated Courier app.
+// The remaining business modules follow the normal catalog -> stock -> procurement workflow.
 const nav:NavItem[]=[
   {label:'Dashboard',to:'/',icon:LayoutDashboard},
   {label:'Sales',icon:ShoppingCart,children:[
-    {label:'Orders',to:'/sales/orders',area:'orders'},
+    {label:'Orders',to:'/sales/orders',area:'orders_view'},
     {label:'Payments',to:'/sales/payments',area:'payments'},
-    {label:'Courier',to:'/sales/courier',area:'shipping'},
-    {label:'Shipment Tracking',to:'/sales/shipments',area:'shipping'},
-    {label:'Delivery Areas',to:'/sales/delivery',area:'shipping'},
   ]},
-  {label:'Catalog',icon:Package,area:'catalog',children:[
-    {label:'Products',to:'/catalog/products'},
-    {label:'Categories',to:'/catalog/categories'},
-    {label:'Brands',to:'/catalog/brands'},
-    {label:'Attributes',to:'/catalog/attributes'},
-    {label:'Shades',to:'/catalog/shades'},
-    {label:'Product Images',to:'/catalog/images'},
+  {label:'Courier',icon:Truck,children:[
+    {label:'Courier Orders',to:'/courier/orders',area:'courier_orders'},
+    {label:'Shipment Tracking',to:'/courier/shipments',area:'courier_shipments'},
+    {label:'Delivery Areas',to:'/courier/delivery-areas',area:'courier_delivery_areas'},
   ]},
-  {label:'Inventory',icon:Boxes,area:'inventory',children:[
-    {label:'Stock',to:'/inventory/stock'},
-    {label:'Warehouses',to:'/inventory/warehouses'},
-    {label:'Stock Movements',to:'/inventory/movements'},
-    {label:'Adjustments',to:'/inventory/adjustments'},
-    {label:'Transfers',to:'/inventory/transfers'},
+  {label:'Catalog',icon:Package,children:[
+    {label:'Products',to:'/catalog/products',area:'catalog_products'},
+    {label:'Categories',to:'/catalog/categories',area:'catalog_categories'},
+    {label:'Brands',to:'/catalog/brands',area:'catalog_brands'},
+    {label:'Attributes',to:'/catalog/attributes',area:'catalog_attributes'},
+    {label:'Shades',to:'/catalog/shades',area:'catalog_shades'},
+    {label:'Product Images',to:'/catalog/images',area:'catalog_images'},
   ]},
-  {label:'Procurement',icon:ShoppingBasket,area:'procurement',children:[
-    {label:'Purchases',to:'/procurement/purchases'},
-    {label:'Suppliers',to:'/procurement/suppliers'},
+  {label:'Inventory',icon:Boxes,children:[
+    {label:'Stock',to:'/inventory/stock',area:'inventory_stock'},
+    {label:'Warehouses',to:'/inventory/warehouses',area:'inventory_warehouses'},
+    {label:'Stock Movements',to:'/inventory/movements',area:'inventory_movements'},
+    {label:'Adjustments',to:'/inventory/adjustments',area:'inventory_adjustments'},
+    {label:'Transfers',to:'/inventory/transfers',area:'inventory_transfers'},
+  ]},
+  {label:'Procurement',icon:ShoppingBasket,children:[
+    {label:'Purchases',to:'/procurement/purchases',area:'procurement_purchases'},
+    {label:'Suppliers',to:'/procurement/suppliers',area:'procurement_suppliers'},
   ]},
   {label:'Customers',to:'/customers',icon:Users,area:'customers'},
-  {label:'Marketing',icon:Tags,area:'marketing',children:[
-    {label:'Coupons',to:'/marketing/coupons'},
-    {label:'Promotions',to:'/marketing/promotions'},
-    {label:'Campaigns',to:'/marketing/campaigns'},
-    {label:'Homepage Content',to:'/marketing/homepage'},
+  {label:'Marketing',icon:Tags,children:[
+    {label:'Coupons',to:'/marketing/coupons',area:'marketing_coupons'},
+    {label:'Promotions',to:'/marketing/promotions',area:'marketing_promotions'},
+    {label:'Campaigns',to:'/marketing/campaigns',area:'marketing_campaigns'},
+    {label:'Homepage Content',to:'/marketing/homepage',area:'marketing_homepage'},
   ]},
   {label:'After Sales',icon:RotateCcw,children:[
     {label:'Reviews',to:'/after-sales/reviews',area:'reviews'},
@@ -53,11 +55,11 @@ const nav:NavItem[]=[
   {label:'Reports',to:'/reports',icon:BarChart3,area:'reports'},
   {label:'Users & Roles',to:'/staff',icon:UserCog,area:'staff'},
   {label:'Settings',icon:Settings,children:[
-    {label:'General',to:'/settings',area:'settings'},
-    {label:'Branding & Theme',to:'/settings/branding',area:'settings'},
-    {label:'Payment Gateways',to:'/settings/payment-gateways',area:'payment_gateways'},
-    {label:'Courier Integrations',to:'/settings/courier-integrations',area:'courier_gateways'},
-    {label:'Pixel & Tracking',to:'/settings/pixel-tracking',area:'marketing'},
+    {label:'General',to:'/settings',area:'settings_general'},
+    {label:'Branding & Theme',to:'/settings/branding',area:'settings_branding'},
+    {label:'Payment Gateways',to:'/settings/payment-gateways',area:'settings_payment_gateways'},
+    {label:'Courier Integrations',to:'/settings/courier-integrations',area:'settings_courier_integrations'},
+    {label:'Pixel & Tracking',to:'/settings/pixel-tracking',area:'settings_pixel_tracking'},
   ]},
 ]
 

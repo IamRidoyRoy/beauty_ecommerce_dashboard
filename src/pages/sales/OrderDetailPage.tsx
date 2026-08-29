@@ -121,7 +121,7 @@ export default function OrderDetailPage() {
             )}
 
             {canBookShipment && (
-              <Link to="/sales/courier" className="btn-secondary">
+              <Link to="/courier/orders" className="btn-secondary">
                 <Truck size={16} />
                 Submit to Courier
               </Link>
@@ -314,7 +314,7 @@ export default function OrderDetailPage() {
             <section className="panel p-5">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="font-semibold">Courier Shipment</h2>
-                <Link to="/sales/shipments" className="text-xs font-semibold text-pink-700">View shipments</Link>
+                <Link to="/courier/shipments" className="text-xs font-semibold text-pink-700">View shipments</Link>
               </div>
               <div className="mt-4 space-y-3">
                 {order.shipments.map((row) => (

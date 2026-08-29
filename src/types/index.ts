@@ -62,7 +62,7 @@ export type SiteBranding={
 }
 
 
-export type StaffAccessModule={key:string;label:string;group:string;description:string}
+export type StaffAccessModule={key:string;label:string;group:string;description:string;requires?:string[]}
 export type StaffAccessOptions={modules:StaffAccessModule[];role_defaults:Record<string,string[]>;role_allowed:Record<string,string[]>}
 export type AnnouncementItem={id:number;text:string;icon:'gift'|'badge'|'truck'|'sparkles'|'tag'|string;link_type:'none'|'custom'|'products'|'category'|'brand'|'product'|'search';link_value:string;resolved_url?:string;active:boolean;order:number;created_at?:string;updated_at?:string}
 export type HeroSlide={id:number;eyebrow?:string;title:string;subtitle?:string;image:string;mobile_image?:string|null;image_alt?:string;primary_cta_label?:string;primary_cta_url?:string;secondary_cta_label?:string;secondary_cta_url?:string;text_position:'left'|'center'|'right';theme:'light'|'dark';overlay_opacity:number;active:boolean;order:number;starts_at?:string|null;ends_at?:string|null;created_at?:string;updated_at?:string}
